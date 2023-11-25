@@ -12,6 +12,8 @@
  
 ### Technology
  > - [Spring Initializr](https://start.spring.io/)
+ > - [PostgreSQL](https://www.postgresql.org/)
+ > - [Apache Kafka](https://kafka.apache.org/)
  > - [OpenTelemetry](https://opentelemetry.io/)
  > - [Tilt](https://tilt.dev/)
  > - [Ttracetest](https://tracetest.io/)
