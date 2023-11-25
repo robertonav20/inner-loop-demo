@@ -7,7 +7,7 @@
 ### Prerequisites
  > - docker
  > - kubectl
- > -  ctlptl
+ > - ctlptl
  > - Java 17
  
 ### Technology
