@@ -7,6 +7,7 @@
 ### Prerequisites
  > - docker
  > - kubectl
+ > - k3d
  > - ctlptl
  > - Java 17
  
@@ -15,9 +16,8 @@
  > - [PostgreSQL](https://www.postgresql.org/)
  > - [Apache Kafka](https://kafka.apache.org/)
  > - [OpenTelemetry](https://opentelemetry.io/)
- > - [Tilt](https://tilt.dev/)
  > - [Ttracetest](https://tracetest.io/)
-
+ > - [Tilt](https://tilt.dev/)
 ---
 
 # tilt-example-java
