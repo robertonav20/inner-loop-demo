@@ -1,0 +1,41 @@
+# -*- mode: Python -*-
+
+# For more on Extensions, see: https://docs.tilt.dev/extensions.html
+load('ext://restart_process', 'docker_build_with_restart')
+
+# Records the current time, then kicks off a server update.
+# Normally, you would let Tilt do deploys automatically, but this
+# shows you how to set up a custom workflow that measures it.
+local_resource(
+    'deploy',
+    'python record-start-time.py',
+)
+
+gradlew = "./gradlew"
+if os.name == "nt":
+  gradlew = "gradlew.bat"
+
+local_resource(
+  'demo-advanced-java-compile',
+  gradlew + ' bootJar && ' +
+  'rm -rf build/jar-staging && ' +
+  'java -Djarmode=layertools -jar build/libs/example-0.0.1-SNAPSHOT.jar extract --destination build/jar-extracted && ' +
+  'rsync --delete --inplace --checksum -r build/jar-extracted/ build/jar',
+  deps=['src', 'build.gradle'],
+  resource_deps = ['deploy'])
+
+docker_build_with_restart(
+  'demo-advanced-java-image',
+  './build/jar',
+  entrypoint=['java', 'org.springframework.boot.loader.JarLauncher'],
+  dockerfile='./Dockerfile_gradle',
+  live_update=[
+    sync('./build/jar/dependencies', '/app'),
+    sync('./build/jar/spring-boot-loader', '/app'),
+    sync('./build/jar/snapshot-dependencies', '/app'),
+    sync('./build/jar/application', '/app'),
+  ],
+)
+
+k8s_yaml('deployment.yaml')
+k8s_resource('demo-advanced-java', port_forwards=8000, resource_deps=['deploy', 'demo-advanced-java-compile'])

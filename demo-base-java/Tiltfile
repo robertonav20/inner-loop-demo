@@ -1,0 +1,14 @@
+docker_build(
+    'demo-base-java-image',
+    context='.',
+    dockerfile='Dockerfile_gradle',
+    live_update=[
+        sync('./src/main', '/build'),
+        run(
+            './gradlew build --scan',
+            trigger=['./build.gradle', './settings.gradle' ]
+        )
+    ]
+)
+k8s_yaml('deployment.yaml')
+k8s_resource('demo-base-java', port_forwards=8000)

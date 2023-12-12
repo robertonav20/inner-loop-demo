@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-base-java
+  labels:
+    app: demo-base-java
+spec:
+  selector:
+    matchLabels:
+      app: demo-base-java
+  template:
+    metadata:
+      labels:
+        app: demo-base-java
+    spec:
+      containers:
+        - name: demo-base-java
+          image: demo-base-java-image
+          ports:
+            - containerPort: 8000

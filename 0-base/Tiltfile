@@ -1,3 +1,0 @@
-docker_build('example-java-image', '.')
-k8s_yaml('kubernetes.yaml')
-k8s_resource('example-java', port_forwards=8000)
