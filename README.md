@@ -41,11 +41,8 @@ To run these examples, you should also have:
 This progression of examples shows how to start, and incrementally update
 your project for live updates.
 
-- [0-base](0-base): The simplest way to start
-- [1-measured](1-measured): Use `local_resource` to measure your deployment time
-- [2-optimized](2-optimized): Compile executable Jars and copy them into Docker
-- [3-unpacked](3-unpacked): Unpack the executable Jar into Docker layers
-- [4-recommended](4-recommended): Live update executable Jars
+- [Demo Base Java](demo-base-java): The simplest way to start
+- [Demo Advanced Java](demo-advanced-java): Live update executable Jars
 
 ## Other Configurations
 
