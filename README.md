@@ -10,6 +10,7 @@
  > - k3d
  > - ctlptl
  > - Java 17
+ > - Gradle 8.5
  
 ### Technology
  > - [Spring Initializr](https://start.spring.io/)

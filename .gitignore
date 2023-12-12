@@ -10,4 +10,9 @@ dist/
 *.tmp
 .DS_Store
 .idea/
+.vscode/
 .gradle/
+
+## API / JAVA ##
+bin/
+target/
