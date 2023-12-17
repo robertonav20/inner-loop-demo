@@ -1,3 +1,5 @@
+local_resource('demo-base-compile-java', './gradlew compileJava', deps=['src', 'build.gradle'])
+
 custom_build('demo-base-java-image', './gradlew jibDockerBuild --image $EXPECTED_REF',
   live_update = [
     sync('./build/classes/java/main', '/app/classes'),
@@ -6,7 +8,5 @@ custom_build('demo-base-java-image', './gradlew jibDockerBuild --image $EXPECTED
   entrypoint='find /app | java -noverify -cp /app/resources:/app/classes:/app/libs/* dev.tilt.example.ExampleApplication'
 )
 
-local_resource('demo-base-compile-java', './gradlew compileJava', deps=['src', 'build.gradle'])
-
 k8s_yaml('deployment.yaml')
-k8s_resource('demo-base-java', port_forwards=8000, resource_deps=[ 'demo-base-compile-java', 'deploy' ])
+k8s_resource('demo-base-java', port_forwards=8000, resource_deps=[ 'demo-base-compile-java' ])
