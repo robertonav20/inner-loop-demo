@@ -1,8 +1,0 @@
-FROM openjdk:17-jdk-alpine
-
-ADD . .
-
-RUN ./mvnw clean package
-
-# We could also use ./gradlew bootRun here
-ENTRYPOINT java -jar target/demo-0.0.1-SNAPSHOT.jar
