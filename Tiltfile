@@ -8,6 +8,7 @@ local_resource('opentelemetry-cert-manager', 'kubectl apply -f https://github.co
 local_resource('opentelemetry-operator', 'kubectl apply -f https://github.com/open-telemetry/opentelemetry-operator/releases/latest/download/opentelemetry-operator.yaml', resource_deps=['tracetest', 'opentelemetry-cert-manager'])
 local_resource('otel-collector', 'kubectl apply -f ./tools/otel-collector.yaml', resource_deps=['opentelemetry-operator'])
 
-include('./demo-base-java/Tiltfile')
+include('./order-service/Tiltfile')
+include('./warehouse-service/Tiltfile')
 
-local_resource('run test', './test/./test.sh', resource_deps=['demo-base-java', 'tracetest', 'opentelemetry-collector', 'demo-base-java'])
+local_resource('run test', './test/./test.sh', resource_deps=['order-service', 'warehouse-service', 'tracetest', 'opentelemetry-collector'])

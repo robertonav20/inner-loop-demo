@@ -1,0 +1,10 @@
+type: Test
+spec:
+  id: yZYElo5Ig
+  name: Order Service - Hello World
+  trigger:
+    type: http
+    httpRequest:
+      url: http://order-service:8000/hello
+      method: GET
+

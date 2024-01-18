@@ -1,0 +1,9 @@
+type: Test
+spec:
+  id: 47LElT5IR
+  name: Warehouse Service - Hello World
+  trigger:
+    type: http
+    httpRequest:
+      url: http://warehouse-service:8001/hello
+      method: GET

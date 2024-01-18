@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: warehouse-service
+  namespace: default
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8001
+      targetPort: 8001
+  selector:
+    app: warehouse-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: warehouse-service
+  labels:
+    app: warehouse-service
+spec:
+  selector:
+    matchLabels:
+      app: warehouse-service
+  template:
+    metadata:
+      annotations:
+        instrumentation.opentelemetry.io/inject-java: "true"
+      labels:
+        app: warehouse-service
+    spec:
+      containers:
+        - name: warehouse-service
+          image: warehouse-service-image
+          ports:
+            - containerPort: 8001

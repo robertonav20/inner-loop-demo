@@ -1,0 +1,10 @@
+local_resource('warehouse-service-compile', './gradlew compileJava', deps=['src', 'build.gradle'], labels='App')
+custom_build('warehouse-service-image', './gradlew jibDockerBuild --image $EXPECTED_REF',
+  live_update = [
+    sync('./build/classes/java/main', '/app/classes'),
+  ],
+  deps=['./build/classes', 'build.gradle'],
+  entrypoint='find /app | java -cp /app/resources:/app/classes:/app/libs/* inner.loop.demo.WarehouseServiceApplication'
+)
+k8s_yaml('deployment.yaml')
+k8s_resource('warehouse-service', port_forwards=8001, resource_deps=[ 'warehouse-service-compile' ], labels='App')

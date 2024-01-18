@@ -1,0 +1,9 @@
+type: Test
+spec:
+  id: yZYElo5Ig
+  name: Order Service - Order a too much quantity
+  trigger:
+    type: http
+    httpRequest:
+      url: http://order-service:8000/order/100
+      method: PUT
