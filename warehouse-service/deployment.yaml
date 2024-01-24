@@ -31,5 +31,12 @@ spec:
       containers:
         - name: warehouse-service
           image: warehouse-service-image
+          env:
+          - name: OTEL_SERVICE_NAME
+            value: warehouse-service
           ports:
             - containerPort: 8001
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"

@@ -1,9 +1,24 @@
 type: Test
 spec:
-  id: yZYElo5Ig
+  id: "2"
   name: Order Service - Order a correct quantity
   trigger:
     type: http
     httpRequest:
-      url: http://order-service:8000/order/1
       method: PUT
+      url: http://order-service:8000/order/1
+  specs:
+    - selector: span[tracetest.span.type="http" name="PUT /stock/{quantity}" http.target="/stock/1" http.method="PUT"]
+      assertions:
+        - attr:tracetest.span.type = "http"
+        - attr:http.status_code = 200
+        - attr:tracetest.span.name = "PUT /stock/{quantity}"
+    - selector: span[tracetest.span.type="http" name="PUT /order/{quantity}" http.target="/order/1" http.method="PUT"]
+      assertions:
+        - attr:http.status_code  =  201
+        - attr:http.route = "/order/{quantity}"
+        - attr:net.protocol.name = "http"
+    - selector: span[tracetest.span.type="general" name="Tracetest trigger"]
+      assertions:
+        - attr:tracetest.response.body  >  "-1"
+        - attr:tracetest.response.status  =  201

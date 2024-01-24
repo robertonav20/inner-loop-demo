@@ -1,9 +1,14 @@
 type: Test
 spec:
-  id: 47LElT5IR
+  id: "4"
   name: Warehouse Service - Hello World
   trigger:
     type: http
     httpRequest:
-      url: http://warehouse-service:8001/hello
       method: GET
+      url: http://warehouse-service:8001/hello
+  specs:
+    - selector: span[tracetest.span.type="general" name="Tracetest trigger"]
+      assertions:
+        - attr:tracetest.response.body   =   "Hello World"
+        - attr:tracetest.response.status = 200

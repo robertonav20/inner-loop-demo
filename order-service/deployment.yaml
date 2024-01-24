@@ -31,5 +31,12 @@ spec:
       containers:
         - name: order-service
           image: order-service-image
+          env:
+          - name: OTEL_SERVICE_NAME
+            value: order-service
           ports:
             - containerPort: 8000
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"

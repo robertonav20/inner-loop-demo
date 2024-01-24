@@ -1,9 +1,26 @@
 type: Test
 spec:
-  id: yZYElo5Ig
+  id: "3"
   name: Order Service - Order a too much quantity
   trigger:
     type: http
     httpRequest:
-      url: http://order-service:8000/order/100
       method: PUT
+      url: http://order-service:8000/order/100
+  specs:
+    - selector: span[tracetest.span.type="general" name="Tracetest trigger"]
+      assertions:
+        - attr:tracetest.response.body = "-1"
+        - attr:tracetest.response.status = 400
+    - selector: span[tracetest.span.type="http" name="PUT /order/{quantity}" http.target="/order/100" http.method="PUT"]
+      assertions:
+        - attr:http.route  =  "/order/{quantity}"
+        - attr:http.status_code  =  400
+        - attr:http.scheme  =  "http"
+        - attr:http.route = "/order/{quantity}"
+    - selector: span[tracetest.span.type="http" name="PUT /stock/{quantity}" http.target="/stock/100" http.method="PUT"]
+      assertions:
+        - attr:http.method = "PUT"
+        - attr:http.route = "/stock/{quantity}"
+        - attr:http.status_code = 400
+        - attr:http.scheme = "http"

@@ -1,10 +1,14 @@
 type: Test
 spec:
-  id: yZYElo5Ig
+  id: "1"
   name: Order Service - Hello World
   trigger:
     type: http
     httpRequest:
-      url: http://order-service:8000/hello
       method: GET
-
+      url: http://order-service:8000/hello
+  specs:
+  - selector: span[tracetest.span.type="general" name="Tracetest trigger"]
+    assertions:
+    - attr:tracetest.response.body = "Hello World"
+    - attr:tracetest.response.status = 200

@@ -1,9 +1,18 @@
 type: Test
 spec:
-  id: 47LElT5IR
+  id: "5"
   name: Warehouse Service - Reset Stock
   trigger:
     type: http
     httpRequest:
-      url: http://warehouse-service:8001/stock/reset
       method: PUT
+      url: http://warehouse-service:8001/stock/reset
+  specs:
+    - selector: span[tracetest.span.type="http" name="PUT /stock/reset" http.target="/stock/reset" http.method="PUT"]
+      assertions:
+        - attr:http.method = "PUT"
+        - attr:http.status_code = 200
+        - attr:http.route = "/stock/reset"
+    - selector: span[tracetest.span.type="general" name="Tracetest trigger"]
+      assertions:
+        - attr:tracetest.response.body = 10
