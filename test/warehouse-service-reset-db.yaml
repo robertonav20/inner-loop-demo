@@ -1,0 +1,29 @@
+type: Test
+spec:
+  id: "warehouse-reset-db-1"
+  name: Warehouse Service - Reset Stock DB
+  trigger:
+    type: http
+    httpRequest:
+      method: PUT
+      url: http://warehouse-service:8001/stock/db/reset
+  specs:
+    - selector: span[tracetest.span.type="general" name="Tracetest trigger"]
+      assertions:
+        - attr:tracetest.response.body = 10
+    - selector: span[tracetest.span.type="http" name="PUT /stock/db/reset" http.target="/stock/db/reset" http.method="PUT"]
+      assertions:
+        - attr:http.status_code = 200
+        - attr:http.route = "/stock/db/reset"
+        - attr:http.scheme = "http"
+        - attr:http.method = "PUT"
+    - selector: span[tracetest.span.type="general" name="WarehouseRepository.findById" code.function="findById" code.namespace="inner.loop.demo.repository.WarehouseRepository"]
+      assertions:
+        - attr:name = "WarehouseRepository.findById"
+        - attr:code.function = "findById"
+        - attr:code.namespace = "inner.loop.demo.repository.WarehouseRepository"
+    - selector: span[tracetest.span.type="general" name="WarehouseRepository.save" code.function="save" code.namespace="inner.loop.demo.repository.WarehouseRepository"]
+      assertions:
+        - attr:code.function = "save"
+        - attr:name = "WarehouseRepository.save"
+        - attr:code.namespace = "inner.loop.demo.repository.WarehouseRepository"

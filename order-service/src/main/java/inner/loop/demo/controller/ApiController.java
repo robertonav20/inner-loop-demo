@@ -1,4 +1,4 @@
-package inner.loop.demo;
+package inner.loop.demo.controller;
 
 import java.net.URI;
 import java.net.http.HttpResponse;
@@ -27,6 +27,20 @@ public class ApiController {
         UriComponents uriComponents =
                 UriComponentsBuilder.newInstance().scheme("http").host("warehouse-service")
                         .port("8001").path("/stock/{quantity}").buildAndExpand(quantity);
+
+        try {
+            return ResponseEntity.created(uriComponents.toUri()).body(
+                    restClient.put().uri(uriComponents.toUri()).retrieve().body(Integer.class));
+        } catch (HttpClientErrorException e) {
+            return ResponseEntity.badRequest().body(-1);
+        }
+    }
+
+    @PutMapping("/order/db/{quantity}")
+    public ResponseEntity<Integer> orderDb(@PathVariable int quantity) {
+        UriComponents uriComponents =
+                UriComponentsBuilder.newInstance().scheme("http").host("warehouse-service")
+                        .port("8001").path("/stock/db/{quantity}").buildAndExpand(quantity);
 
         try {
             return ResponseEntity.created(uriComponents.toUri()).body(

@@ -1,0 +1,1 @@
+insert into warehouse (id, quantity) values (1, 10);

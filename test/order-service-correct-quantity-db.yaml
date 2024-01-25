@@ -1,0 +1,34 @@
+type: Test
+spec:
+  id: "order-correct-quantity-db-1"
+  name: Order Service - Order a correct quantity DB
+  trigger:
+    type: http
+    httpRequest:
+      method: PUT
+      url: http://order-service:8000/order/db/1
+  specs:
+    - selector: span[tracetest.span.type="http" name="PUT /stock/db/{quantity}" http.target="/stock/db/1" http.method="PUT"]
+      assertions:
+        - attr:tracetest.span.type = "http"
+        - attr:http.status_code = 200
+        - attr:tracetest.span.name = "PUT /stock/db/{quantity}"
+    - selector: span[tracetest.span.type="http" name="PUT /order/db/{quantity}" http.target="/order/db/1" http.method="PUT"]
+      assertions:
+        - attr:http.status_code  =  201
+        - attr:http.route = "/order/db/{quantity}"
+        - attr:net.protocol.name = "http"
+    - selector: span[tracetest.span.type="general" name="Tracetest trigger"]
+      assertions:
+        - attr:tracetest.response.body  >  "-1"
+        - attr:tracetest.response.status  =  201
+    - selector: span[tracetest.span.type="general" name="WarehouseRepository.findById" code.function="findById" code.namespace="inner.loop.demo.repository.WarehouseRepository"]
+      assertions:
+        - attr:name = "WarehouseRepository.findById"
+        - attr:code.function = "findById"
+        - attr:code.namespace = "inner.loop.demo.repository.WarehouseRepository"
+    - selector: span[tracetest.span.type="general" name="WarehouseRepository.save" code.function="save" code.namespace="inner.loop.demo.repository.WarehouseRepository"]
+      assertions:
+        - attr:code.function = "save"
+        - attr:name = "WarehouseRepository.save"
+        - attr:code.namespace = "inner.loop.demo.repository.WarehouseRepository"

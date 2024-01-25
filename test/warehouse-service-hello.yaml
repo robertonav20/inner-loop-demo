@@ -1,6 +1,6 @@
 type: Test
 spec:
-  id: "4"
+  id: "warehouse-hello-1"
   name: Warehouse Service - Hello World
   trigger:
     type: http

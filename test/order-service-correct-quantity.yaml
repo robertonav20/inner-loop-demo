@@ -1,6 +1,6 @@
 type: Test
 spec:
-  id: "2"
+  id: "order-correct-quantity-1"
   name: Order Service - Order a correct quantity
   trigger:
     type: http

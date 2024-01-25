@@ -1,6 +1,6 @@
 type: Test
 spec:
-  id: "3"
+  id: "order-too-much-quantity-1"
   name: Order Service - Order a too much quantity
   trigger:
     type: http

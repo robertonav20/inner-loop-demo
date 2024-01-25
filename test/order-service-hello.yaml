@@ -1,6 +1,6 @@
 type: Test
 spec:
-  id: "1"
+  id: "order-hello-1"
   name: Order Service - Hello World
   trigger:
     type: http

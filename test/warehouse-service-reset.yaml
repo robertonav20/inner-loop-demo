@@ -1,6 +1,6 @@
 type: Test
 spec:
-  id: "5"
+  id: "warehouse-reset-1"
   name: Warehouse Service - Reset Stock
   trigger:
     type: http

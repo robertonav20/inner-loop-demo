@@ -6,8 +6,12 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: 8001
+    - name: api
+      port: 8001
       targetPort: 8001
+    - name: debug
+      port: 5001
+      targetPort: 5001
   selector:
     app: warehouse-service
 ---
@@ -34,8 +38,13 @@ spec:
           env:
           - name: OTEL_SERVICE_NAME
             value: warehouse-service
+          - name: OTEL_METRICS_EXPORTER
+            value: none
+          - name: JAVA_TOOL_OPTIONS
+            value: -agentlib:jdwp=transport=dt_socket,address=5001,server=y,suspend=n
           ports:
             - containerPort: 8001
+            - containerPort: 5001
           resources:
             limits:
               memory: "512Mi"

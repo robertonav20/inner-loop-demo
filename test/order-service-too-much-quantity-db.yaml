@@ -1,0 +1,30 @@
+type: Test
+spec:
+  id: "order-too-much-quantity-db-1"
+  name: Order Service - Order a too much quantity DB
+  trigger:
+    type: http
+    httpRequest:
+      method: PUT
+      url: http://order-service:8000/order/db/100
+  specs:
+    - selector: span[tracetest.span.type="general" name="Tracetest trigger"]
+      assertions:
+        - attr:tracetest.response.body = "-1"
+        - attr:tracetest.response.status = 400
+    - selector: span[tracetest.span.type="http" name="PUT /order/db/{quantity}" http.target="/order/db/100" http.method="PUT"]
+      assertions:
+        - attr:http.route  =  "/order/db/{quantity}"
+        - attr:http.status_code  =  400
+        - attr:http.scheme  =  "http"
+    - selector: span[tracetest.span.type="http" name="PUT /stock/db/{quantity}" http.target="/stock/db/100" http.method="PUT"]
+      assertions:
+        - attr:http.method = "PUT"
+        - attr:http.route = "/stock/db/{quantity}"
+        - attr:http.status_code = 400
+        - attr:http.scheme = "http"
+    - selector: span[tracetest.span.type="general" name="WarehouseRepository.findById" code.function="findById" code.namespace="inner.loop.demo.repository.WarehouseRepository"]
+      assertions:
+        - attr:name = "WarehouseRepository.findById"
+        - attr:code.function = "findById"
+        - attr:code.namespace = "inner.loop.demo.repository.WarehouseRepository"

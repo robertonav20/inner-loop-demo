@@ -7,4 +7,4 @@ custom_build('order-service-image', './gradlew jibDockerBuild --image $EXPECTED_
   entrypoint='find /app | java -cp /app/resources:/app/classes:/app/libs/* inner.loop.demo.OrderServiceApplication'
 )
 k8s_yaml('deployment.yaml')
-k8s_resource('order-service', port_forwards=8000, resource_deps=[ 'order-service-compile' ], labels='App')
+k8s_resource('order-service', port_forwards=[8000,5000], resource_deps=[ 'order-service-compile' ], labels='App')

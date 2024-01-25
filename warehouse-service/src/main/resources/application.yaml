@@ -1,0 +1,12 @@
+server:
+  port: 8001
+
+spring:
+    datasource:
+        driverClassName: org.postgresql.Driver
+        username: tracetest
+        password: not-secure-database-password
+        url: jdbc:postgresql://tracetest-postgresql-hl:5432/postgres
+    jpa:
+        hibernate:
+            ddl-auto: create-drop
