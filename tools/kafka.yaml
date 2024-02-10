@@ -96,9 +96,10 @@ data:
     log.dir=/bitnami/kafka/data
     # Kafka application logs directory
     logs.dir=/opt/bitnami/kafka/logs
-
     sasl.enabled.mechanisms=PLAIN,SCRAM-SHA-256,SCRAM-SHA-512
     # Interbroker configuration
+    delete.topic.enable=true
+    offsets.topic.replication.factor=1
     inter.broker.listener.name=INTERNAL
     sasl.mechanism.inter.broker.protocol=PLAIN
     # Listeners SASL JAAS configuration
@@ -570,3 +571,151 @@ spec:
         resources:
           requests:
             storage: "8Gi"
+---
+# Source: kafka/templates/provisioning/job.yaml
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: kafka-provisioning
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: kafka
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: kafka
+    app.kubernetes.io/version: 3.6.1
+    helm.sh/chart: kafka-26.8.5
+    app.kubernetes.io/component: kafka-provisioning
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: kafka
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: kafka
+        app.kubernetes.io/version: 3.6.1
+        helm.sh/chart: kafka-26.8.5
+        app.kubernetes.io/component: kafka-provisioning
+    spec:
+      serviceAccountName: kafka-provisioning
+      automountServiceAccountToken: false
+      enableServiceLinks: true
+
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        seccompProfile:
+          type: RuntimeDefault
+        supplementalGroups: []
+        sysctls: []
+      restartPolicy: OnFailure
+      terminationGracePeriodSeconds: 0
+      initContainers:
+        - name: wait-for-available-kafka
+          image: docker.io/bitnami/kafka:3.6.1-debian-11-r6
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: null
+          command:
+            - /bin/bash
+          args:
+            - -ec
+            - |
+              wait-for-port \
+                --host=kafka \
+                --state=inuse \
+                --timeout=120 \
+                9092;
+              echo "Kafka is available";
+          resources:
+            limits: {}
+            requests: {}
+      containers:
+        - name: kafka-provisioning
+          image: docker.io/bitnami/kafka:3.6.1-debian-11-r6
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: null
+          command:
+            - /bin/bash
+          args:
+            - -ec
+            - |
+              echo "Configuring environment"
+              . /opt/bitnami/scripts/libkafka.sh
+              export CLIENT_CONF="${CLIENT_CONF:-/tmp/client.properties}"
+              if [ ! -f "$CLIENT_CONF" ]; then
+                touch $CLIENT_CONF
+
+                kafka_common_conf_set "$CLIENT_CONF" security.protocol "SASL_PLAINTEXT"
+                kafka_common_conf_set "$CLIENT_CONF" sasl.mechanism PLAIN
+                kafka_common_conf_set "$CLIENT_CONF" sasl.jaas.config "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"$SASL_USERNAME\" password=\"$SASL_USER_PASSWORD\";"
+              fi
+
+              echo "Running pre-provisioning script if any given"
+
+
+
+              kafka_provisioning_commands=(
+                "/opt/bitnami/kafka/bin/kafka-topics.sh \
+                    --create \
+                    --if-not-exists \
+                    --bootstrap-server ${KAFKA_SERVICE} \
+                    --replication-factor 1 \
+                    --partitions 1 \
+                    --command-config ${CLIENT_CONF} \
+                    --topic warehouse"
+              )
+
+              echo "Starting provisioning"
+              for ((index=0; index < ${#kafka_provisioning_commands[@]}; index+=1))
+              do
+                for j in $(seq ${index} $((${index}+1-1)))
+                do
+                    ${kafka_provisioning_commands[j]} & # Async command
+                done
+                wait  # Wait the end of the jobs
+              done
+
+              echo "Running post-provisioning script if any given"
+
+
+
+              echo "Provisioning succeeded"
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: KAFKA_SERVICE
+              value: kafka:9092
+            - name: SASL_USERNAME
+              value: "user1"
+            - name: SASL_USER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-user-passwords
+                  key: system-user-password
+          resources:
+            limits: {}
+            requests: {}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

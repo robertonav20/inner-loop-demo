@@ -2,7 +2,11 @@ package inner.loop.demo.controller;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -13,6 +17,8 @@ import jakarta.annotation.Resource;
 
 @RestController
 public class ApiController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ApiController.class);
 
     private final AtomicInteger stock = new AtomicInteger(10);
 
@@ -76,5 +82,28 @@ public class ApiController {
         repository.save(warehouse);
 
         return ResponseEntity.ok().body(10);
+    }
+
+    @KafkaListener(id = "warehouse", topics = "warehouse")
+    public void orderKafka(@Payload Integer quantity) {
+        try {
+            Optional<Warehouse> result = repository.findById(1L);
+            if (!result.isPresent()) {
+                throw new IllegalArgumentException("Warehouse not found");
+            }
+
+            Warehouse warehouse = result.get();
+            int current = warehouse.getQuantity();
+            int newValue = current - quantity;
+
+            if (newValue < 0) {
+                throw new IllegalArgumentException("Quantity not available");
+            }
+
+            warehouse.setQuantity(newValue);
+            repository.save(warehouse);
+        } catch (Exception e) {
+            logger.error("Error occurred", e);
+        }
     }
 }

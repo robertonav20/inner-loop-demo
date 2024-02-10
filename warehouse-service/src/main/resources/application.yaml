@@ -2,11 +2,27 @@ server:
   port: 8001
 
 spring:
-    datasource:
-        driverClassName: org.postgresql.Driver
-        username: tracetest
-        password: not-secure-database-password
-        url: jdbc:postgresql://tracetest-postgresql-hl:5432/postgres
-    jpa:
-        hibernate:
-            ddl-auto: create-drop
+  datasource:
+    driverClassName: org.postgresql.Driver
+    username: tracetest
+    password: not-secure-database-password
+    url: jdbc:postgresql://tracetest-postgresql-hl:5432/postgres
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  kafka:
+    admin:
+      auto-create: false
+    jaas:
+      enabled: true
+    properties:
+      security:
+        protocol: SASL_PLAINTEXT
+      sasl:
+        mechanism: PLAIN
+        jaas:
+          config: org.apache.kafka.common.security.plain.PlainLoginModule required username="user1" password="pTFSFdMfF4";
+    consumer:
+      bootstrap-servers: kafka:9092
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer

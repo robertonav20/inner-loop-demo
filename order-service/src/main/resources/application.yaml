@@ -1,2 +1,20 @@
 server:
   port: 8000
+
+spring:
+  kafka:
+    admin:
+      auto-create: false
+    jaas:
+      enabled: true
+    properties:
+      security:
+        protocol: SASL_PLAINTEXT
+      sasl:
+        mechanism: PLAIN
+        jaas:
+          config: org.apache.kafka.common.security.plain.PlainLoginModule required username="user1" password="pTFSFdMfF4";
+    producer:
+      bootstrap-servers: kafka:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
