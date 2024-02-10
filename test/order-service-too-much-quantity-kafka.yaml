@@ -1,0 +1,25 @@
+type: Test
+spec:
+  id: "order-correct-quantity-kafka-1"
+  name: Order Service - Order a correct quantity Kafka
+  trigger:
+    type: http
+    httpRequest:
+      method: PUT
+      url: http://order-service:8000/order/kafka/100
+  specs:
+    - selector: span[tracetest.span.type="http" name="PUT /order/kafka/{quantity}" http.target="/order/kafka/1" http.method="PUT"]
+      assertions:
+        - attr:http.method = "PUT"
+        - attr:http.scheme = "http"
+        - attr:http.route = "/order/kafka/{quantity}"
+        - attr:http.status_code = 202
+    - selector: span[tracetest.span.type="messaging" name="warehouse publish" messaging.system="kafka" messaging.operation="publish"]
+      assertions:
+        - attr:messaging.client_id = "producer-1"
+        - attr:messaging.destination.name = "warehouse"
+        - attr:messaging.operation = "publish"
+    - selector: span[tracetest.span.type="general" name="WarehouseRepository.findById" code.function="findById" code.namespace="inner.loop.demo.repository.WarehouseRepository"]
+      assertions:
+        - attr:name  =  "WarehouseRepository.findById"
+        - attr:tracetest.span.duration < 10ms
