@@ -11,4 +11,4 @@ local_resource('otel-instrumentation', 'kubectl apply -f ./tools/otel-instrument
 include('./order-service/Tiltfile')
 include('./warehouse-service/Tiltfile')
 
-local_resource('run test', './test/./test.sh', resource_deps=['order-service', 'warehouse-service', 'tracetest'])
+local_resource('run test', './test/./test.sh', auto_init=False, trigger_mode=TRIGGER_MODE_MANUAL, resource_deps=['order-service', 'warehouse-service', 'tracetest'])
