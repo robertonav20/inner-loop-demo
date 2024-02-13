@@ -51,25 +51,10 @@ data:
       otlpHttpPort: 4318
       telemetry: null
   provisioning.yaml: |-
-    |
-      ---
-      # Datastore is where your application stores its traces. You can define several different datastores with
-      # different names, however, only one is used by Tracetest.
-      # You can see all available datastore configurations at https://kubeshop.github.io/tracetest/supported-backends/
-      type: DataStore
-      spec:
-        name: Jaeger
-        # Indicates that this datastore is a jaeger instance
-        type: jaeger
-        # Configures how tracetest connects to jaeger.
-        jaeger:
-          endpoint: jaeger-query:16685
-          tls:
-            insecure: true
       ---
       type: Config
       spec:
-        analyticsEnabled: true
+        analyticsEnabled: false
       ---
       type: PollingProfile
       spec:
@@ -79,26 +64,6 @@ data:
         periodic:
           timeout: 30s
           retryDelay: 500ms
-      ---
-      type: Demo
-      spec:
-        name: pokeshop
-        type: pokeshop
-        enabled: true
-        pokeshop:
-          httpEndpoint: http://demo-pokemon-api.demo
-          grpcEndpoint: demo-pokemon-api.demo:8082
-      ---
-      type: Demo
-      spec:
-        name: otel
-        type: otelstore
-        enabled: true
-        opentelemetryStore:
-          frontendEndpoint: http://otel-frontend.otel-demo:8084
-          productCatalogEndpoint: http://otel-productcatalogservice.otel-demo:3550
-          cartEndpoint: http://otel-cartservice.otel-demo:7070
-          checkoutEndpoint: http://otel-checkoutservice.otel-demo:5050
 ---
 # Source: tracetest/charts/postgresql/templates/primary/svc-headless.yaml
 apiVersion: v1
@@ -293,7 +258,7 @@ spec:
             - name: tcp-postgresql
               containerPort: 5432
           livenessProbe:
-            failureThreshold: 6
+            failureThreshold: 5
             initialDelaySeconds: 30
             periodSeconds: 10
             successThreshold: 1
@@ -304,7 +269,7 @@ spec:
                 - -c
                 - exec pg_isready -U "tracetest" -d "dbname=tracetest" -h 127.0.0.1 -p 5432
           readinessProbe:
-            failureThreshold: 6
+            failureThreshold: 5
             initialDelaySeconds: 5
             periodSeconds: 10
             successThreshold: 1
@@ -314,7 +279,6 @@ spec:
                 - /bin/sh
                 - -c
                 - -e
-                
                 - |
                   exec pg_isready -U "tracetest" -d "dbname=tracetest" -h 127.0.0.1 -p 5432
                   [ -f /opt/bitnami/postgresql/tmp/.initialized ] || [ -f /bitnami/postgresql/.initialized ]
@@ -372,7 +336,7 @@ spec:
         - name: tracetest
           securityContext:
             {}
-          image: "kubeshop/tracetest:v0.15.1"
+          image: "kubeshop/tracetest:v0.15.5"
           env:
           - name: TRACETEST_DEV
             value: "false"
@@ -393,10 +357,18 @@ spec:
               containerPort: 4318
               protocol: TCP
           livenessProbe:
+            failureThreshold: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
             httpGet:
               path: /
               port: http
           readinessProbe:
+            failureThreshold: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
             httpGet:
               path: /
               port: http

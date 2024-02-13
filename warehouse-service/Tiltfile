@@ -7,4 +7,7 @@ custom_build('warehouse-service-image', './gradlew jibDockerBuild --image $EXPEC
   entrypoint='find /app | java -cp /app/resources:/app/classes:/app/libs/* inner.loop.demo.WarehouseServiceApplication'
 )
 k8s_yaml('deployment.yaml')
-k8s_resource('warehouse-service', port_forwards=[8001,5001], resource_deps=[ 'warehouse-service-compile' ], labels='App')
+
+def warehouse_service(dependencies):
+  dependencies.extend(['warehouse-service-compile'])
+  k8s_resource('warehouse-service', port_forwards=[8001,5001], resource_deps=dependencies, labels='App')
